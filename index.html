@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <link rel="stylesheet" href="style.css">
+
+  </head>
+<body style = "margin: 0; padding: 0; font-family: monospace;">
+  <div id="gameWrapper" style="position: absolute; margin: auto; height: 100%; left: 0px; right: 0px;">
+
+      <canvas id="game_canvas" style="z-index: 0; width: 100%; height: 100vh; margin: auto; position: absolute"></canvas>
+
+  </div>
+</body>
+
+
+<script id="from_hyper_vs" type="notjs">
+attribute vec4 aPosition;
+attribute vec4 aNormal;
+attribute vec2 aTexcoord;  
+
+uniform mat4 uEM;
+uniform mat4 uM;
+uniform float uFov;
+uniform float uAspect;
+
+varying vec4 vPosition;
+varying vec4 vNormal;
+
+void main(){
+  vPosition= uEM*aPosition;
+  vPosition.w= length(vPosition);
+
+  float dt= dot(vPosition, vNormal);
+
+  vNormal= normalize(uEM*aNormal);
+  vNormal-= dt*vPosition;
+  vNormal*= inversesqrt(1.0 + dt*dt);
+
+  vNormal= uM*vNormal;
+  vPosition=  uM*vPosition;
+
+  gl_Position= vec4( uFov*uAspect*vPosition.x/abs(vPosition.z), uFov*vPosition.y/abs(vPosition.z), -(vPosition.w/vPosition.z-10.0)/11.0, 1.0);
+}
+
+
+</script>
+
+<script id="temp_vs" type="notjs">
+
+attribute vec4 aPosition;
+attribute vec4 aNormal;
+attribute vec2 aTexcoord;
+
+uniform mat4  uM;
+uniform float uAspect;
+uniform float uFov;
+
+varying vec2 vTexcoord;
+varying vec4 vNormal;
+varying vec4 vPosition;
+
+void main(){
+  vPosition= uM*aPosition;
+  vNormal=   uM*aNormal;
+
+  gl_Position= vec4( uFov*uAspect*vPosition.x/abs(vPosition.z), uFov*vPosition.y/abs(vPosition.z), -(vPosition.w/vPosition.z-10.0)/11.0, 1.0);
+}
+</script>
+
+<script id="temp_fs" type="notjs">
+precision mediump float;
+uniform sampler2D texture;
+uniform vec3 uColor;
+
+varying vec2 vTexcoord;
+varying vec4 vNormal;
+
+
+void main(){
+  vec3 lNormal= normalize(vNormal.xyz);
+
+  gl_FragColor = vec4( (lNormal+1.0)/4.0 + uColor/2.0, 1.0);
+}
+</script>
+
+
+<script src="./twgl-full.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="./v4.js"></script>
+<script src="./quat.js"></script>
+<script src="./h4.js"></script>
+<script src="./Transform.js"></script>
+<script src="./dodecLengths.js"></script>
+<script src="./DodecahedronAlgebra.js"></script>
+<script src="./buffer.js"></script>
+<script src="./placer.js"></script>
+<script src="./render.js"></script>
+<script src="./simple.js"></script>
+</html>
